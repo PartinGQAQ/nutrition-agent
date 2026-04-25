@@ -7,7 +7,7 @@ from loguru import logger
 
 async def run(state: AgentState, runtime: Runtime[DataAgentContext]) -> AgentState:
     """分析健康信息并写入数据库"""
-    user_id = state.user_id
+    user_id = state['user_id']
     repo = runtime.context["food_log_repository"]
 
     try:
@@ -22,7 +22,7 @@ async def run(state: AgentState, runtime: Runtime[DataAgentContext]) -> AgentSta
 分析结果：
 """
         prompt = prompt.format(
-            question=state.question,
+            question=state["question"],
             health_information=health_information,
             food_logs=food_logs,
         )

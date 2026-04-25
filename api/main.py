@@ -3,13 +3,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from client.db_client import DBClient
 from api.routes import chat, food, report
+from memory.short_term import short_term_memory
 
 db_client = DBClient()  # 全局单例
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await db_client.init_db()
-    yield
+    async with short_term_memory as short_memory:
+        app.state.short_memory = short_memory
+        yield
 
 
 app = FastAPI(title="Nutrition Agent API", version="1.0.0", lifespan=lifespan)

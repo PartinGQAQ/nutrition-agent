@@ -21,7 +21,7 @@ import operator
 #    LangGraph 在每个节点执行后自动保存 State 快照，
 #    下次用同一个 thread_id 进来时自动恢复。
 # ─────────────────────────────────────────────
-def create_short_term_memory(db_path: str = "checkpoints.db") -> AsyncSqliteSaver:
+def create_short_term_memory(db_path: str = "_data/checkpoints.db") -> AsyncSqliteSaver:
     """
     创建短期记忆（会话级别 Checkpointer）。
     
@@ -104,3 +104,5 @@ def make_thread_id(user_id: str, session_id: str) -> str:
         await graph.ainvoke({"messages": [msg]}, config)
     """
     return f"{user_id}_{session_id}"
+
+short_term_memory = create_short_term_memory()

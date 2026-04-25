@@ -47,6 +47,8 @@ class FoodLog(SQLModel, table=True):
     fat_g: float
     carb_g: float
     logged_at: datetime
+    confidence: str
+    dialog_timestamp: str
 
 
 class NutritionGoal(SQLModel, table=True):

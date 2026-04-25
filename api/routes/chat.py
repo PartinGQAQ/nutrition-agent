@@ -1,7 +1,7 @@
-import logging
 from typing import Any, Optional, cast
+import uuid
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, Request, UploadFile
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +10,7 @@ from agent.graph import get_compiled_graph
 from agent.state import AgentState
 from client.db_client import db_client
 from db.repositories import FoodLogRepository
+from memory.short_term import make_thread_id
 
 router = APIRouter()
 
@@ -51,7 +52,8 @@ async def send_message(
 
     # 启动graph
     graph = get_compiled_graph()
-    final = await graph.ainvoke(state, context=context)
+    config = {"configurable": {"thread_id": make_thread_id(req.user_id, req.session_id)}}
+    final = await graph.ainvoke(state, config=config, context=context)
     data = _final_state_to_dict(final)
 
     if data.get("error"):
@@ -68,6 +70,7 @@ async def send_message(
 
 @router.post("/image", response_model=ChatResponse)
 async def send_image(
+    request: Request,
     user_id: str,
     session_id: str,
     image: UploadFile = File(...),
@@ -75,18 +78,24 @@ async def send_image(
     session: AsyncSession = Depends(db_client.get_session),
 ):
     """上传食物图片，agent 识别并记录"""
+    session_id = session_id or str(uuid.uuid4())
+    image_bytes = await image.read()
     state = AgentState(
         user_id=user_id,
         session_id=session_id,
-        question=message,
+        question=message or "",
+        image=image_bytes,
     )
     context: DataAgentContext = {
         "food_log_repository": FoodLogRepository(session),
     }
     
-    # 启动graph:
-    graph = get_compiled_graph()
-    final = await graph.ainvoke(state, context=context)
+    # 注入的memoryserver（）sqlite版本
+    checkpointer = getattr(request.app.state, "short_memory", None)
+    
+    graph = get_compiled_graph(checkpointer=checkpointer)
+    config = {"configurable": {"thread_id": make_thread_id(user_id, session_id)}}
+    final = await graph.ainvoke(state, config=config, context=context)
     data = _final_state_to_dict(final)
 
     if data.get("error"):
@@ -94,7 +103,11 @@ async def send_image(
     else:
         reply = (data.get("response") or data.get("reply") or "").strip() or "暂无回复"
 
-    pass
+    return ChatResponse(
+        session_id=session_id,
+        reply=reply,
+        intent=data.get("intent"),
+    )
 
 
 @router.get("/history/{session_id}")

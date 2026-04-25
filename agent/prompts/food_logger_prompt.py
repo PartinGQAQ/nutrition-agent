@@ -4,6 +4,7 @@ extract_food_info_prompt = """
 【输入】
 - 用户问题: {question}
 - 多模态信息: {multimodal_info}
+- 对话时间: {dialog_timestamp}
 
 【任务要求】
 1. 尽可能识别每一种食物/饮品，分别给出估计摄入量与营养信息。
@@ -14,13 +15,14 @@ extract_food_info_prompt = """
    - 蛋白质/脂肪/碳水/纤维: g
 4. 如果是组合食物（如盖饭、沙拉、火锅），可拆分为多个条目。
 5. 不要输出与任务无关的解释文本。
+6. 如果question中包含时间或者餐次信息，请用question中的信息，如果没有请填入对话时间
 
 【输出格式】
 仅输出严格 JSON（不要 Markdown 代码块，不要额外说明）:
-{
+{{
   "status": "ok",
   "items": [
-    {
+    {{
       "food_name": "string",
       "food_amount": 0,
       "food_unit": "g",
@@ -32,17 +34,18 @@ extract_food_info_prompt = """
       "food_vitamin": "string",
       "food_mineral": "string",
       "food_other": "string",
-      "uncertainty": "low|medium|high"
-    }
+      "uncertainty": "low|medium|high",
+      "meal_type": "breakfast|lunch|dinner|snack"
+    }}
   ],
   "notes": "string"
-}
+}}
 
 【图片不清晰时】
 如果图片模糊、遮挡严重或关键信息缺失，无法可靠识别时，输出:
-{
+{{
   "status": "image_blur",
   "message": "图片清晰度过低，无法可靠识别，请重新上传清晰图片。",
   "items": []
-}
+}}
 """
