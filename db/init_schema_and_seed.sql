@@ -54,6 +54,7 @@ CREATE TABLE food_logs (
   id INT NOT NULL AUTO_INCREMENT,
   user_id VARCHAR(64) NOT NULL,
   food_id INT NOT NULL,
+  food_name VARCHAR(255) NOT NULL,
   amount_g DOUBLE NOT NULL,
   meal_type VARCHAR(64) NOT NULL,
   calories DOUBLE NOT NULL,
@@ -61,6 +62,8 @@ CREATE TABLE food_logs (
   fat_g DOUBLE NOT NULL,
   carb_g DOUBLE NOT NULL,
   logged_at DATETIME(6) NOT NULL,
+  confidence VARCHAR(32) NOT NULL DEFAULT 'low',
+  dialog_timestamp VARCHAR(128) NOT NULL DEFAULT '',
   PRIMARY KEY (id),
   KEY ix_food_logs_user_id (user_id),
   KEY ix_food_logs_logged_at (logged_at),
@@ -93,12 +96,12 @@ INSERT INTO foods (id, name, calories, protein_g, fat_g, carb_g) VALUES
   (3, '香蕉', 89.0, 1.1, 0.3, 22.8),
   (4, '希腊酸奶', 97.0, 9.0, 5.0, 3.6);
 
-INSERT INTO food_logs (id, user_id, food_id, amount_g, meal_type, calories, protein_g, fat_g, carb_g, logged_at) VALUES
-  (1, '1', 1, 60.0, 'breakfast', 233.4, 7.9, 4.1, 39.8, '2026-04-24 08:15:00.000000'),
-  (2, '1', 3, 120.0, 'breakfast', 106.8, 1.3, 0.4, 27.4, '2026-04-24 08:20:00.000000'),
-  (3, '1', 2, 150.0, 'lunch', 247.5, 46.5, 5.4, 0.0, '2026-04-24 12:30:00.000000'),
-  (4, '1', 4, 100.0, 'snack', 97.0, 9.0, 5.0, 3.6, '2026-04-24 15:00:00.000000'),
-  (5, '2', 2, 100.0, 'lunch', 165.0, 31.0, 3.6, 0.0, '2026-04-24 12:00:00.000000');
+INSERT INTO food_logs (id, user_id, food_id, food_name, amount_g, meal_type, calories, protein_g, fat_g, carb_g, logged_at, confidence, dialog_timestamp) VALUES
+  (1, '1', 1, '燕麦片', 60.0, 'breakfast', 233.4, 7.9, 4.1, 39.8, '2026-04-24 08:15:00.000000', 'low', '2026-04-24T08:15:00'),
+  (2, '1', 3, '香蕉', 120.0, 'breakfast', 106.8, 1.3, 0.4, 27.4, '2026-04-24 08:20:00.000000', 'low', '2026-04-24T08:20:00'),
+  (3, '1', 2, '鸡胸肉', 150.0, 'lunch', 247.5, 46.5, 5.4, 0.0, '2026-04-24 12:30:00.000000', 'medium', '2026-04-24T12:30:00'),
+  (4, '1', 4, '希腊酸奶', 100.0, 'snack', 97.0, 9.0, 5.0, 3.6, '2026-04-24 15:00:00.000000', 'low', '2026-04-24T15:00:00'),
+  (5, '2', 2, '鸡胸肉', 100.0, 'lunch', 165.0, 31.0, 3.6, 0.0, '2026-04-24 12:00:00.000000', 'low', '2026-04-24T12:00:00');
 
 INSERT INTO nutrition_goals (id, user_id, daily_calories, daily_protein_g, daily_fat_g, daily_carb_g, updated_at) VALUES
   (1, '1', 2100.0, 130.0, 70.0, 220.0, '2026-04-24 00:00:00.000000'),

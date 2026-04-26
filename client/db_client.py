@@ -61,4 +61,8 @@ class DBClient:
             yield session
 
 
+
+
+
+
 db_client = DBClient()

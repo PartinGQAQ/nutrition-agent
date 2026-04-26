@@ -40,6 +40,7 @@ class FoodLog(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str
     food_id: int
+    food_name: str
     amount_g: float
     meal_type: str
     calories: float

@@ -49,3 +49,20 @@ extract_food_info_prompt = """
   "items": []
 }}
 """
+
+semantic_text_prompt = """
+    生成便于向量检索的语义化文本。
+    示例："用户(user_123)在2024年12月3日12:00:00午餐吃了100g米饭，约350kcal，
+          蛋白质7g，脂肪1g，碳水78g。"
+
+    建议：
+      - 包含 {user_id}（检索时按用户过滤）
+      - 包含 {dialog_timestamp}（支持时间范围查询）
+      - 包含营养摘要（支持"上周高热量食物"类语义查询）
+"""
+
+
+food_log_refinment_prompt = """
+请根据
+
+"""
